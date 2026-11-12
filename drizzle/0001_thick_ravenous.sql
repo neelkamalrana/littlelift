@@ -1,0 +1,1 @@
+ALTER TABLE `bills` ADD `has_image` integer DEFAULT 0 NOT NULL;
