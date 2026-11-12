@@ -1,3 +1,17 @@
+# Little Lift
+
+A no-signup bill-sharing app. Visitors browse requests and help uploaders directly through PayPal. Uploaders manage each request with a private link.
+
+- **Public app:** https://little-lift-bills-nkr.nkrneelkamalrana.chatgpt.site/
+- **Short link:** https://neelkamalrana.com/littlelift/
+- **Setup and limitations:** [LITTLE-LIFT.md](LITTLE-LIFT.md)
+
+This repository holds the app independently of the portfolio. The portfolio contains only a link and redirect page. Hosting remains on Sites; pushing this GitHub repository does not automatically deploy it. No payment credentials or local bill data are included.
+
+Payments happen on PayPal. Little Lift does not verify requests, account ownership, or payment completion.
+
+---
+
 # vinext-starter
 
 A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
