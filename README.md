@@ -10,6 +10,12 @@ This repository holds the app independently of the portfolio. The portfolio cont
 
 Payments happen on PayPal. Little Lift does not verify requests, account ownership, or payment completion.
 
+## Contributing
+
+Interested in contributing? Please contact **Neelkamal Rana** at [nkrneelkamalrana@gmail.com](mailto:nkrneelkamalrana@gmail.com) before starting work or opening a pull request. Include a brief description of your idea, proposed fix, or improvement so we can agree on the scope.
+
+This repository is public for viewing and reviewing the code. Public visibility does not grant write access: direct pushes and changes to this repository are restricted to the owner and any explicitly authorized maintainers. Contributions require review and approval before being merged.
+
 ---
 
 # vinext-starter
