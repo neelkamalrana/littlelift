@@ -2,7 +2,7 @@
 
 A no-signup bill-sharing app. Visitors browse requests and help uploaders directly through PayPal. Uploaders manage each request with a private link.
 
-- **Public app:** https://little-lift-bills-nkr.nkrneelkamalrana.chatgpt.site/
+- **Public app:** https://littlelift.neelkamalrana.com/
 - **Short link:** https://neelkamalrana.com/littlelift/
 - **Setup and limitations:** [LITTLE-LIFT.md](LITTLE-LIFT.md)
 
