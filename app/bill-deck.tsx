@@ -1,0 +1,20 @@
+'use client';
+import {useRef,useState,type PointerEvent} from 'react';
+type Bill={has_image:number;id:string;name:string;category:string;cents:number;story:string;paypal:string;status:string};
+const icons:Record<string,string>={Electricity:'⚡',Groceries:'🍊',Internet:'⌁',Rent:'⌂',Other:'♡'};
+export default function BillDeck({bills,more,onMore,onHelp}:{bills:Bill[];more:boolean;onMore:()=>void;onHelp:(bill:Bill)=>void}){
+ const [index,setIndex]=useState(0),[drag,setDrag]=useState(0);
+ const start=useRef<{x:number;y:number;id:number}|null>(null);
+ const bill=bills[index];
+ function pass(){setDrag(0);start.current=null;setIndex(i=>Math.min(i+1,bills.length))}
+ function help(){setDrag(0);start.current=null;if(bill)onHelp(bill)}
+ function down(e:PointerEvent<HTMLElement>){if(!e.isPrimary||e.button!==0||(e.target as HTMLElement).closest('a,button'))return;start.current={x:e.clientX,y:e.clientY,id:e.pointerId};e.currentTarget.setPointerCapture(e.pointerId)}
+ function move(e:PointerEvent<HTMLElement>){const s=start.current;if(!s||s.id!==e.pointerId)return;const x=e.clientX-s.x,y=e.clientY-s.y;if(Math.abs(y)>Math.abs(x)&&Math.abs(y)>15){start.current=null;setDrag(0);return}setDrag(x)}
+ function up(e:PointerEvent<HTMLElement>){const s=start.current;start.current=null;setDrag(0);if(!s||s.id!==e.pointerId)return;const x=e.clientX-s.x,y=e.clientY-s.y;if(Math.abs(x)<85||Math.abs(x)<Math.abs(y)*1.3)return;if(x<0)pass();else help()}
+ if(!bill)return <div className="panel empty"><div className="icon" aria-hidden="true">♡</div><h2>You’ve seen these requests.</h2><p>Passing only changes what you see. Every bill stays available to others.</p>{more?<button className="btn primary" onClick={onMore}>See more bills</button>:<button className="btn primary" onClick={()=>setIndex(0)}>Browse again</button>}<button className="textbtn full" onClick={()=>setIndex(Math.max(0,index-1))}>Undo last pass</button></div>;
+ return <section aria-label="Swipe through bills"><p className="deck-count" aria-live="polite">Request {index+1} of {bills.length}{more?' · more to discover':''}</p><div className="deck-stack"><div className="deck-back" aria-hidden="true"/><article key={bill.id} className={'receipt swipe-card'+(drag?' dragging':'')} tabIndex={0} aria-label={`${bill.category} request from ${bill.name}. Left arrow to pass, right arrow to help.`} onKeyDown={e=>{if(e.target!==e.currentTarget)return;if(e.key==='ArrowLeft'){e.preventDefault();pass()}if(e.key==='ArrowRight'){e.preventDefault();help()}}} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={()=>{start.current=null;setDrag(0)}} onLostPointerCapture={()=>{start.current=null;setDrag(0)}} style={{transform:`translateX(${Math.max(-180,Math.min(180,drag))}px) rotate(${Math.max(-12,Math.min(12,drag/18))}deg)`}}>
+ {Math.abs(drag)>25&&<span aria-hidden="true" className={'swipe-stamp '+(drag>0?'help-stamp':'pass-stamp')}>{drag>0?'♥ HELP':'PASS'}</span>}
+ <div className="receipt-head"><span>{icons[bill.category]} {bill.category.toUpperCase()}</span><span>USD</span></div><div className="art" aria-hidden="true">{icons[bill.category]}</div><div className="amount">{new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(bill.cents/100)}</div><p className="person">A little help for <strong>{bill.name}</strong></p><p className="story">{bill.story}</p>{!!bill.has_image&&<a className="textbtn" href={'/api/bills/'+bill.id+'/image'} target="_blank" rel="noopener noreferrer">View bill image ↗</a>}<div className="receipt-foot">COMMUNITY REQUEST · UNVERIFIED</div></article></div>
+ <div className="swipe-actions"><div><button className="swipe-button pass-button" aria-label="Pass this bill" onClick={pass}>×</button><span>Pass</span></div><div><button className="swipe-button heart-button" aria-label="Help with this bill" onClick={help}>♥</button><span>Help out</span></div></div><p className="swipe-hint">Swipe left to pass · right to help</p>{index>0&&<button className="textbtn full" onClick={()=>{setDrag(0);setIndex(i=>Math.max(0,i-1))}}>Undo last pass</button>}
+ </section>
+}
