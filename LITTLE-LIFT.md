@@ -25,3 +25,6 @@ Anonymous posting has a honeypot and a per-PayPal-profile limit of five open/rec
 ## Publication
 
 Public hosting approved by the owner. Existing Sites project: appgprj_6aee5ed8adac819189e8bbbb13567d5c. Local test data is not included in deployment. Portfolio inclusion is deferred until the owner has tested the live app.
+
+## Optional management-link email
+Users may request one email when posting, sent through Resend from littlelift@neelkamalrana.com. Configure RESEND_API_KEY as a Sites secret; never commit its value. Emails and raw management tokens are not stored in bill records. Resend processes the recipient address and private link for delivery. The UI reports API acceptance, not guaranteed inbox delivery, and always presents the private link. Sending stops when more than 90 bills have been created that UTC day; provider limits also apply. There is no resend/recovery endpoint. Delivery failure does not undo posting. Keep open/click tracking disabled for these private links.

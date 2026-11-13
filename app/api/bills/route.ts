@@ -1,3 +1,4 @@
+import {optionalEmail,sendBillEmail} from '../../../lib/bill-email.mjs';
 import {env} from 'cloudflare:workers';
 import {parseBill} from '../../../lib/bill-validation.mjs';
 import {newToken,tokenHash} from '../../../lib/manage-token.mjs';
@@ -13,10 +14,17 @@ export async function POST(req:Request){
  if(req.headers.get('origin')!==new URL(req.url).origin)return json({error:'Invalid request origin.'},403);
  if(!req.headers.get('content-type')?.includes('application/json'))return json({error:'Expected JSON.'},415);
  try{const raw=await req.text();if(raw.length>4096)return json({error:'Bill details are too long.'},413);
- let b;try{const input=JSON.parse(raw);if(input.website)return json({error:'Unable to post.'},400);b=parseBill(input)}catch(e){return json({error:e instanceof Error?e.message:'Invalid bill.'},400)}
+ let b,email;try{const input=JSON.parse(raw);if(input.website)return json({error:'Unable to post.'},400);b=parseBill(input);email=optionalEmail(input.email)}catch(e){return json({error:e instanceof Error?e.message:'Invalid bill.'},400)}
  const id=crypto.randomUUID(),token=newToken(),owner='link:'+await tokenHash(token),now=Date.now();
  const result=await env.DB!.prepare("INSERT INTO bills(id,owner,name,category,cents,story,paypal,status,created_at,updated_at) SELECT ?,?,?,?,?,?,?,'open',?,? WHERE (SELECT COUNT(*) FROM bills WHERE lower(paypal)=lower(?) AND (status='open' OR created_at>?))<5").bind(id,owner,b.name,b.category,b.cents,b.story,b.paypal,now,now,b.paypal,now-86400000).run();
  if(!result.meta.changes)return json({error:'This PayPal profile has reached its posting limit. Keep at most five open requests and try again tomorrow.'},429);
- return json({id,token},201);
+ let emailStatus='not_requested';
+ if(email){
+  // Bound automatic sends; email addresses are never stored in public bill records.
+  try{const daily=await env.DB!.prepare('SELECT COUNT(*) AS total FROM bills WHERE created_at>=?').bind(new Date().setUTCHours(0,0,0,0)).first<{total:number}>();
+   emailStatus=(daily?.total??91)>90?'unavailable':await sendBillEmail({apiKey:env.RESEND_API_KEY,email,id,token});
+  }catch{emailStatus='failed'}
+ }
+ return json({id,token,emailStatus},201);
  }catch{return json({error:'We could not save your bill. Please try again.'},503)}
 }
